@@ -6,6 +6,7 @@ import { TOOLS } from '@/tools'
 import CopyButton from '@/components/CopyButton'
 import Button from '@/components/Button'
 import ToggleGroup from '@/components/ToggleGroup'
+import { useQrFavorites, type Favorite } from '@/hooks/useQrFavorites'
 
 const TOOL = TOOLS.find((t) => t.path === '/qrcode')!
 
@@ -134,6 +135,47 @@ function DecodePanel() {
   )
 }
 
+function formatTime(ts: number): string {
+  const d = new Date(ts)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function FavoriteList({
+  favorites,
+  onPick,
+  onRemove,
+}: {
+  favorites: Favorite[]
+  onPick: (fav: Favorite) => void
+  onRemove: (id: string) => void
+}) {
+  if (favorites.length === 0) {
+    return <p className="qr-fav-empty">暂无收藏</p>
+  }
+  return (
+    <ul className="qr-fav-list">
+      {favorites.map((fav) => (
+        <li key={fav.id} className="qr-fav-item">
+          <button type="button" className="qr-fav-main" onClick={() => onPick(fav)}>
+            {fav.label && <span className="qr-fav-label">{fav.label}</span>}
+            <span className="qr-fav-text">{fav.text}</span>
+            <span className="qr-fav-time">{formatTime(fav.createdAt)}</span>
+          </button>
+          <button
+            type="button"
+            className="qr-fav-remove"
+            aria-label="删除收藏"
+            onClick={() => onRemove(fav.id)}
+          >
+            ✕
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export default function QrCodePage() {
   useSeo(TOOL.name, TOOL.description)
   const [mode, setMode] = useState<Mode>('generate')
@@ -141,8 +183,27 @@ export default function QrCodePage() {
   // Generate mode state
   const [text, setText] = useState(DEFAULT_INPUT)
   const [error, setError] = useState('')
+  const [label, setLabel] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const trimmed = text.trim()
+  const { favorites, add, remove } = useQrFavorites()
+
+  const openDialog = useCallback(() => {
+    setLabel('')
+    setDialogOpen(true)
+  }, [])
+
+  const confirmSave = useCallback(() => {
+    if (trimmed === '' || error) return
+    add(trimmed, label)
+    setLabel('')
+    setDialogOpen(false)
+  }, [trimmed, error, label, add])
+
+  const handlePick = useCallback((fav: Favorite) => {
+    setText(fav.text)
+  }, [])
 
   useEffect(() => {
     if (mode !== 'generate') return
@@ -214,9 +275,51 @@ export default function QrCodePage() {
 
       {mode === 'generate' ? (
         <div className="qr-body">
-          <section className="qr-pane">
+          <section className="qr-pane qr-fav-pane">
+            <div className="pane-header">
+              <span className="pane-label">收藏</span>
+            </div>
+            <FavoriteList favorites={favorites} onPick={handlePick} onRemove={remove} />
+          </section>
+
+          <section className="qr-pane qr-input-pane">
             <div className="pane-header">
               <span className="pane-label">输入内容</span>
+              <div className="qr-fav-trigger">
+                <button
+                  type="button"
+                  className="qr-fav-btn"
+                  onClick={openDialog}
+                  disabled={downloadDisabled}
+                >
+                  ☆ 收藏
+                </button>
+                {dialogOpen && (
+                  <>
+                    <div className="qr-dialog-mask" onClick={() => setDialogOpen(false)} />
+                    <div className="qr-dialog" role="dialog">
+                      <input
+                        className="qr-fav-name"
+                        value={label}
+                        autoFocus
+                        onChange={(e) => setLabel(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') confirmSave()
+                          if (e.key === 'Escape') setDialogOpen(false)
+                        }}
+                        placeholder="备注名称（可选）"
+                        spellCheck={false}
+                      />
+                      <div className="qr-dialog-actions">
+                        <Button onClick={() => setDialogOpen(false)}>取消</Button>
+                        <Button variant="primary" onClick={confirmSave}>
+                          保存
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <textarea
               className="qr-textarea"
