@@ -1,0 +1,32 @@
+src/pages/QrCode.tsx
+  s_cacdcbb5751d32::t_b6224784f267fd 9
+  s_cacdcbb5751d32::t_ee4eaef3422b9a 289-296
+  s_cacdcbb5751d32::t_9b0d7b7ee023ef 278-284
+  s_cacdcbb5751d32::t_344aaf6aa482d0 314-316
+  s_cacdcbb5751d32::t_30e843d8a91715 138-178,186,190-191,198-200,202-206
+  s_cacdcbb5751d32::t_06c223c2e13427 187,192-197,201
+  s_cacdcbb5751d32::t_fa4d104a6f0045 285,288,297-313,317-322
+src/hooks/useQrFavorites.ts
+  s_cacdcbb5751d32::t_9009dc1d3f87dd 1-65
+src/App.css
+  s_cacdcbb5751d32::t_a00e4d657411fe 1219-1227,1247-1258,1260-1271
+  s_cacdcbb5751d32::t_190f8ee98a4360 1214-1216
+  s_cacdcbb5751d32::t_02cb3862877559 1217-1218,1259,1272-1373
+  s_cacdcbb5751d32::t_dcbfe4eda68407 1228-1246
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "36e7ca83259750c6e53c4a7c9d60e4b3d0653b3c",
+  "prompts": {},
+  "sessions": {
+    "s_cacdcbb5751d32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97b28dc2-f98b-4e63-b5fc-509d3bc75875",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "swlws <swlwsgg@gmai.com>"
+    }
+  }
+}
