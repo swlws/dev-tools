@@ -1,0 +1,29 @@
+src/pages/Url.tsx
+  s_cacdcbb5751d32::t_e60bc40b55a029 7,15-76,79,94-99
+  s_cacdcbb5751d32::t_047a19b5abbcaf 112-147,166-170,172-184
+src/utils/urlParse.ts
+  s_cacdcbb5751d32::t_186b3fb9b4c1ee 1-118
+src/App.css
+  s_cacdcbb5751d32::t_509bfe998a9c84 1458-1464
+  s_cacdcbb5751d32::t_e35e9d142b7dfb 1356-1359,1383-1451
+  s_cacdcbb5751d32::t_7c14cfc001a1fa 1373-1374
+  s_cacdcbb5751d32::t_37b90e9b7f1297 1360-1372
+  s_cacdcbb5751d32::t_7d2c82db21a377 1382
+  s_cacdcbb5751d32::t_7ebb0a4282da5e 1452
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "b5502278d7dba6cd1dcbf55f1c0062621822cc4b",
+  "prompts": {},
+  "sessions": {
+    "s_cacdcbb5751d32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "97b28dc2-f98b-4e63-b5fc-509d3bc75875",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "swlws <swlwsgg@gmai.com>"
+    }
+  }
+}
