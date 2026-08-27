@@ -1,0 +1,21 @@
+src/pages/Editor/index.css
+  s_0ce3b419873ea6::t_4522da2d7dd8c0 1-60
+src/pages/QrCode/index.css
+  s_0ce3b419873ea6::t_852443248eb1de 1-285
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "be6a0219eb5186d31460496799e2272ea18af248",
+  "prompts": {},
+  "sessions": {
+    "s_0ce3b419873ea6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "253c55b1-0215-4463-9df6-57b3e7ea1bb5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "swlws <swlwsgg@gmai.com>"
+    }
+  }
+}
