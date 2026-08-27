@@ -1,0 +1,198 @@
+/* ===== Page Shell (shared) ===== */
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ===== Page Header (shared) ===== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.chart-count {
+  font-size: 13px;
+  color: var(--color-muted);
+  padding: 0 var(--space-2);
+}
+
+/* ===== Buttons ===== */
+.btn {
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  font: inherit;
+  height: var(--control-h);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color var(--transition), box-shadow var(--transition),
+    transform var(--transition), opacity var(--transition), color var(--transition);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  color: var(--on-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.36);
+}
+
+.btn-secondary {
+  color: var(--color-primary-soft-text);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-soft-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-primary-soft-hover);
+  border-color: var(--color-primary-soft-border-hover);
+}
+
+/* ===== Pane Header (shared) ===== */
+.pane-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 39px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.pane-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ===== Badges (shared) ===== */
+.error-badge,
+.success-badge,
+.warn-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px var(--space-2);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+.error-badge {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+.success-badge {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success-border);
+}
+
+.warn-badge {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning-border);
+}
+
+.fix-hint {
+  font-size: 11px;
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.error-hint {
+  margin: var(--space-3) 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* ===== View Toggle (shared) ===== */
+.view-toggle {
+  display: inline-flex;
+  height: var(--control-h);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+}
+
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  font-size: 12px;
+  font-weight: 600;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.toggle-btn.active {
+  background: var(--color-primary);
+  color: var(--on-primary);
+}
+
+.toggle-btn:hover:not(.active) {
+  background: var(--color-surface-muted);
+}
+
+/* ===== Responsive (shared header) ===== */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+  }
+}

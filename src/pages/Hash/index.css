@@ -1,0 +1,85 @@
+/* ===== Hash Page ===== */
+.hash-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.hash-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.hash-textarea {
+  flex: 1;
+  padding: var(--space-4);
+  border: 0;
+  outline: 0;
+  resize: none;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-soft);
+  background: var(--color-surface);
+}
+
+.hash-textarea::placeholder {
+  color: var(--color-faint);
+}
+
+.hash-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+
+.hash-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.hash-algo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.hash-field-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.hash-value {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-soft);
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .hash-body {
+    flex-direction: column;
+  }
+
+  .hash-pane {
+    flex: none;
+    height: 50vh;
+  }
+}

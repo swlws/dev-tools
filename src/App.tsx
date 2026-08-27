@@ -20,7 +20,6 @@ import Logo from '@/components/Logo'
 import ThemeToggle from '@/components/ThemeToggle'
 import { groupedTools } from '@/tools'
 import { recordToolUse } from '@/hooks/useToolUsage'
-import './App.css'
 
 const GROUPS = groupedTools()
 

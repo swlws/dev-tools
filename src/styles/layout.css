@@ -1,0 +1,209 @@
+/* ===== Navigation ===== */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  flex-shrink: 0;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: var(--space-4);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+/* ===== Nav Groups (category dropdowns) ===== */
+.nav-groups {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nav-group {
+  position: relative;
+}
+
+.nav-group-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: color var(--transition), background-color var(--transition);
+}
+
+.nav-group:hover .nav-group-trigger {
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+}
+
+.nav-group.active .nav-group-trigger {
+  color: var(--color-primary);
+}
+
+.nav-group-caret {
+  font-size: 9px;
+  color: var(--color-faint);
+  transition: transform var(--transition);
+}
+
+.nav-group:hover .nav-group-caret {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  min-width: 180px;
+  padding: var(--space-1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity var(--transition), transform var(--transition),
+    visibility var(--transition);
+}
+
+/* Transparent bridge fills the gap between trigger and dropdown so
+   hover is never lost while moving the pointer down onto the menu. */
+.nav-dropdown::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: var(--space-2);
+}
+
+.nav-group:hover .nav-dropdown,
+.nav-group:focus-within .nav-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* After selecting an item, keep the dropdown hidden even while hovered,
+   until the pointer leaves the group. */
+.nav-group.collapsed .nav-dropdown {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-soft);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--transition), background-color var(--transition);
+}
+
+.nav-dropdown-item:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+}
+
+.nav-dropdown-item.active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.nav-dropdown-icon {
+  width: 20px;
+  text-align: center;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ===== Mobile Hamburger ===== */
+.nav-hamburger {
+  display: none;
+  padding: var(--space-1) var(--space-2);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-text-soft);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.nav-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nav-groups {
+    display: none;
+  }
+
+  .nav-hamburger {
+    display: block;
+  }
+
+  .nav-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+  }
+
+  .nav-mobile-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .nav-mobile-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-faint);
+    padding: 0 var(--space-2) var(--space-1);
+  }
+
+  .nav-mobile-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-soft);
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-mobile-item.active {
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+}
