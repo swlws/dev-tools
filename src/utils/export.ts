@@ -78,11 +78,17 @@ function ensureXmlns(svg: string): string {
   return svg.replace(/<svg/, '<svg xmlns="http://www.w3.org/2000/svg"')
 }
 
-function downloadBlob(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob)
+/** 触发浏览器下载：给定任意 href（data URL、blob URL、http…）与文件名 */
+export function downloadUrl(href: string, name: string) {
   const a = document.createElement('a')
-  a.href = url
+  a.href = href
   a.download = name
   a.click()
+}
+
+/** 下载一个 Blob，自动创建并回收 object URL */
+export function downloadBlob(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob)
+  downloadUrl(url, name)
   URL.revokeObjectURL(url)
 }
