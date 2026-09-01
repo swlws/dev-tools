@@ -1,0 +1,21 @@
+src/utils/urlParse.ts
+  s_ea7534d7f9f81c::t_da509f4f2e20b7 99-100,120-149,152
+  s_ea7534d7f9f81c::t_fb9dd0ccf76372 150-151
+  s_ea7534d7f9f81c::t_c047586cd3bea3 153
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3bf17ff5463a67c8dc2ce25738e5156b77d42e97",
+  "prompts": {},
+  "sessions": {
+    "s_ea7534d7f9f81c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4dd41c1f-8080-4d50-b5fd-e2a2cac648d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "swlws <swlwsgg@gmai.com>"
+    }
+  }
+}
