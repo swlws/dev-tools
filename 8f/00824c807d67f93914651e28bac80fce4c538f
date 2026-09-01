@@ -1,0 +1,19 @@
+src/pages/ImageMerge/index.tsx
+  s_ea7534d7f9f81c::t_9b227f856d0490 89-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8f00824c807d67f93914651e28bac80fce4c538f",
+  "prompts": {},
+  "sessions": {
+    "s_ea7534d7f9f81c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4dd41c1f-8080-4d50-b5fd-e2a2cac648d6",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "swlws <swlwsgg@gmai.com>"
+    }
+  }
+}
