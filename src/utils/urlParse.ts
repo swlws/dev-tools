@@ -96,7 +96,8 @@ export function parseUrl(input: string): UrlParts | null {
   try {
     url = new URL(input.trim())
   } catch {
-    return null
+    // 不是合法绝对 URL：尝试当作"仅查询串"解析（如 a=1&b=2）。
+    return parseQueryOnly(input)
   }
 
   const query: Record<string, unknown> = {}
@@ -112,6 +113,40 @@ export function parseUrl(input: string): UrlParts | null {
     port: url.port,
     path: url.pathname,
     hash: url.hash.replace(/^#/, ''),
+    query: expandJson(query) as Record<string, unknown>,
+    hasQuery,
+  }
+}
+
+// 解析"仅有查询串"的输入（无协议/域名），如 token=abc&sku=123。要求每段
+// 形如 key 或 key=value（key 非空、不含空白），且至少一段带 =，避免把普通
+// 文本误判为查询串。URLSearchParams 会自动完成百分号解码。
+function parseQueryOnly(input: string): UrlParts | null {
+  const trimmed = input.trim()
+  const body = trimmed.startsWith('?') ? trimmed.slice(1) : trimmed
+  if (!body) return null
+
+  let sawPair = false
+  for (const seg of body.split('&')) {
+    if (!/^[^=&\s]+(=[^&]*)?$/.test(seg)) return null
+    if (seg.includes('=')) sawPair = true
+  }
+  if (!sawPair) return null
+
+  const query: Record<string, unknown> = {}
+  let hasQuery = false
+  for (const [key, value] of new URLSearchParams(body)) {
+    hasQuery = true
+    insert(query, parseKeyPath(key), value)
+  }
+  if (!hasQuery) return null
+
+  return {
+    protocol: '',
+    host: '',
+    port: '',
+    path: '',
+    hash: '',
     query: expandJson(query) as Record<string, unknown>,
     hasQuery,
   }
