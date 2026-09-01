@@ -16,6 +16,7 @@ import RegexPage from '@/pages/Regex'
 import RadixPage from '@/pages/Radix'
 import CronPage from '@/pages/Cron'
 import YamlJsonPage from '@/pages/YamlJson'
+import ImageMergePage from '@/pages/ImageMerge'
 import Logo from '@/components/Logo'
 import ThemeToggle from '@/components/ThemeToggle'
 import { groupedTools } from '@/tools'
@@ -131,6 +132,7 @@ function App() {
         <Route path="/radix" element={<RadixPage />} />
         <Route path="/cron" element={<CronPage />} />
         <Route path="/yaml" element={<YamlJsonPage />} />
+        <Route path="/image-merge" element={<ImageMergePage />} />
       </Routes>
     </>
   )

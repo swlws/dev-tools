@@ -160,6 +160,15 @@ export const TOOLS: Tool[] = [
     icon: '⇄',
     category: 'convert',
   },
+  {
+    path: '/image-merge',
+    name: '图片拼接',
+    navLabel: '图片拼接',
+    description: '多张图片垂直、水平或宫格拼接为一张长图,可调间距、边距、背景,导出 PNG/JPEG,纯本地处理。',
+    keywords: ['图片', '拼接', '拼图', '长图', '合并', 'merge', '截图', '宫格', '九宫格', '垂直', '水平', 'png', 'jpeg', '导出'],
+    icon: '🖼',
+    category: 'generate',
+  },
 ]
 
 export interface ToolGroup extends Category {
