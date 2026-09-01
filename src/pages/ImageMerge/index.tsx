@@ -13,8 +13,22 @@ type Layout = 'vertical' | 'horizontal' | 'grid' | 'template'
 // width for grid) is unified across images so they line up flush.
 type SizeMode = 'min' | 'max' | 'custom'
 
-// A collage cell as a rectangle in normalized canvas coordinates (0..1).
-type Cell = [x: number, y: number, w: number, h: number]
+// A point in normalized canvas coordinates (0..1).
+type Point = [x: number, y: number]
+
+// A collage cell is a convex polygon in normalized coordinates. Rectangular
+// cells are just 4-point polygons produced by rect(); irregular templates
+// (triangles, quads) list their vertices directly. Cells should tile the
+// unit square with no gaps so the merged image fills the canvas.
+type Cell = Point[]
+
+// Build a rectangular cell as a 4-point polygon (clockwise).
+const rect = (x: number, y: number, w: number, h: number): Cell => [
+  [x, y],
+  [x + w, y],
+  [x + w, y + h],
+  [x, y + h],
+]
 
 interface Template {
   id: string
@@ -26,41 +40,71 @@ interface Template {
 // Preset collage templates on a square (1:1) canvas. Cells are normalized so
 // the same table drives both the picker thumbnail and the draw pass.
 const TEMPLATES: Template[] = [
-  { id: '2-lr', count: 2, label: '左右', cells: [[0, 0, 0.5, 1], [0.5, 0, 0.5, 1]] },
-  { id: '2-tb', count: 2, label: '上下', cells: [[0, 0, 1, 0.5], [0, 0.5, 1, 0.5]] },
+  { id: '2-lr', count: 2, label: '左右', cells: [rect(0, 0, 0.5, 1), rect(0.5, 0, 0.5, 1)] },
+  { id: '2-tb', count: 2, label: '上下', cells: [rect(0, 0, 1, 0.5), rect(0, 0.5, 1, 0.5)] },
+  // Irregular: two triangles split along a diagonal — fills the square seamlessly.
+  {
+    id: '2-diag',
+    count: 2,
+    label: '斜切╲',
+    cells: [
+      [[0, 0], [1, 0], [0, 1]],
+      [[1, 0], [1, 1], [0, 1]],
+    ],
+  },
+  {
+    id: '2-diag2',
+    count: 2,
+    label: '斜切╱',
+    cells: [
+      [[0, 0], [1, 0], [1, 1]],
+      [[0, 0], [1, 1], [0, 1]],
+    ],
+  },
   {
     id: '3-l1r2',
     count: 3,
     label: '左1右2',
-    cells: [[0, 0, 0.5, 1], [0.5, 0, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+    cells: [rect(0, 0, 0.5, 1), rect(0.5, 0, 0.5, 0.5), rect(0.5, 0.5, 0.5, 0.5)],
   },
   {
     id: '3-t1b2',
     count: 3,
     label: '上1下2',
-    cells: [[0, 0, 1, 0.5], [0, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+    cells: [rect(0, 0, 1, 0.5), rect(0, 0.5, 0.5, 0.5), rect(0.5, 0.5, 0.5, 0.5)],
   },
   {
     id: '3-v',
     count: 3,
     label: '竖三',
-    cells: [[0, 0, 1 / 3, 1], [1 / 3, 0, 1 / 3, 1], [2 / 3, 0, 1 / 3, 1]],
+    cells: [rect(0, 0, 1 / 3, 1), rect(1 / 3, 0, 1 / 3, 1), rect(2 / 3, 0, 1 / 3, 1)],
   },
   {
     id: '3-h',
     count: 3,
     label: '横三',
-    cells: [[0, 0, 1, 1 / 3], [0, 1 / 3, 1, 1 / 3], [0, 2 / 3, 1, 1 / 3]],
+    cells: [rect(0, 0, 1, 1 / 3), rect(0, 1 / 3, 1, 1 / 3), rect(0, 2 / 3, 1, 1 / 3)],
+  },
+  // Irregular: top triangle over two bottom quads meeting at the apex.
+  {
+    id: '3-tri',
+    count: 3,
+    label: '斜三角',
+    cells: [
+      [[0, 0], [1, 0], [0.5, 1]],
+      [[0, 0], [0.5, 1], [0, 1]],
+      [[1, 0], [1, 1], [0.5, 1]],
+    ],
   },
   {
     id: '4-grid',
     count: 4,
     label: '田字',
     cells: [
-      [0, 0, 0.5, 0.5],
-      [0.5, 0, 0.5, 0.5],
-      [0, 0.5, 0.5, 0.5],
-      [0.5, 0.5, 0.5, 0.5],
+      rect(0, 0, 0.5, 0.5),
+      rect(0.5, 0, 0.5, 0.5),
+      rect(0, 0.5, 0.5, 0.5),
+      rect(0.5, 0.5, 0.5, 0.5),
     ],
   },
   {
@@ -68,34 +112,46 @@ const TEMPLATES: Template[] = [
     count: 4,
     label: '左1右3',
     cells: [
-      [0, 0, 0.5, 1],
-      [0.5, 0, 0.5, 1 / 3],
-      [0.5, 1 / 3, 0.5, 1 / 3],
-      [0.5, 2 / 3, 0.5, 1 / 3],
+      rect(0, 0, 0.5, 1),
+      rect(0.5, 0, 0.5, 1 / 3),
+      rect(0.5, 1 / 3, 0.5, 1 / 3),
+      rect(0.5, 2 / 3, 0.5, 1 / 3),
     ],
   },
   {
     id: '4-v',
     count: 4,
     label: '竖四',
-    cells: [[0, 0, 0.25, 1], [0.25, 0, 0.25, 1], [0.5, 0, 0.25, 1], [0.75, 0, 0.25, 1]],
+    cells: [rect(0, 0, 0.25, 1), rect(0.25, 0, 0.25, 1), rect(0.5, 0, 0.25, 1), rect(0.75, 0, 0.25, 1)],
   },
   {
     id: '4-h',
     count: 4,
     label: '横四',
-    cells: [[0, 0, 1, 0.25], [0, 0.25, 1, 0.25], [0, 0.5, 1, 0.25], [0, 0.75, 1, 0.25]],
+    cells: [rect(0, 0, 1, 0.25), rect(0, 0.25, 1, 0.25), rect(0, 0.5, 1, 0.25), rect(0, 0.75, 1, 0.25)],
+  },
+  // Irregular: pinwheel — four triangles meeting at the center.
+  {
+    id: '4-pinwheel',
+    count: 4,
+    label: '风车',
+    cells: [
+      [[0, 0], [1, 0], [0.5, 0.5]],
+      [[1, 0], [1, 1], [0.5, 0.5]],
+      [[1, 1], [0, 1], [0.5, 0.5]],
+      [[0, 1], [0, 0], [0.5, 0.5]],
+    ],
   },
   {
     id: '5-l1r4',
     count: 5,
     label: '左1右4',
     cells: [
-      [0, 0, 0.5, 1],
-      [0.5, 0, 0.5, 0.25],
-      [0.5, 0.25, 0.5, 0.25],
-      [0.5, 0.5, 0.5, 0.25],
-      [0.5, 0.75, 0.5, 0.25],
+      rect(0, 0, 0.5, 1),
+      rect(0.5, 0, 0.5, 0.25),
+      rect(0.5, 0.25, 0.5, 0.25),
+      rect(0.5, 0.5, 0.5, 0.25),
+      rect(0.5, 0.75, 0.5, 0.25),
     ],
   },
   {
@@ -103,11 +159,11 @@ const TEMPLATES: Template[] = [
     count: 5,
     label: '上1下4',
     cells: [
-      [0, 0, 1, 0.5],
-      [0, 0.5, 0.25, 0.5],
-      [0.25, 0.5, 0.25, 0.5],
-      [0.5, 0.5, 0.25, 0.5],
-      [0.75, 0.5, 0.25, 0.5],
+      rect(0, 0, 1, 0.5),
+      rect(0, 0.5, 0.25, 0.5),
+      rect(0.25, 0.5, 0.25, 0.5),
+      rect(0.5, 0.5, 0.25, 0.5),
+      rect(0.75, 0.5, 0.25, 0.5),
     ],
   },
   {
@@ -115,11 +171,11 @@ const TEMPLATES: Template[] = [
     count: 5,
     label: '竖五',
     cells: [
-      [0, 0, 0.2, 1],
-      [0.2, 0, 0.2, 1],
-      [0.4, 0, 0.2, 1],
-      [0.6, 0, 0.2, 1],
-      [0.8, 0, 0.2, 1],
+      rect(0, 0, 0.2, 1),
+      rect(0.2, 0, 0.2, 1),
+      rect(0.4, 0, 0.2, 1),
+      rect(0.6, 0, 0.2, 1),
+      rect(0.8, 0, 0.2, 1),
     ],
   },
   {
@@ -127,12 +183,12 @@ const TEMPLATES: Template[] = [
     count: 6,
     label: '2×3',
     cells: [
-      [0, 0, 1 / 3, 0.5],
-      [1 / 3, 0, 1 / 3, 0.5],
-      [2 / 3, 0, 1 / 3, 0.5],
-      [0, 0.5, 1 / 3, 0.5],
-      [1 / 3, 0.5, 1 / 3, 0.5],
-      [2 / 3, 0.5, 1 / 3, 0.5],
+      rect(0, 0, 1 / 3, 0.5),
+      rect(1 / 3, 0, 1 / 3, 0.5),
+      rect(2 / 3, 0, 1 / 3, 0.5),
+      rect(0, 0.5, 1 / 3, 0.5),
+      rect(1 / 3, 0.5, 1 / 3, 0.5),
+      rect(2 / 3, 0.5, 1 / 3, 0.5),
     ],
   },
   {
@@ -140,12 +196,12 @@ const TEMPLATES: Template[] = [
     count: 6,
     label: '上2下4',
     cells: [
-      [0, 0, 0.5, 0.5],
-      [0.5, 0, 0.5, 0.5],
-      [0, 0.5, 0.25, 0.5],
-      [0.25, 0.5, 0.25, 0.5],
-      [0.5, 0.5, 0.25, 0.5],
-      [0.75, 0.5, 0.25, 0.5],
+      rect(0, 0, 0.5, 0.5),
+      rect(0.5, 0, 0.5, 0.5),
+      rect(0, 0.5, 0.25, 0.5),
+      rect(0.25, 0.5, 0.25, 0.5),
+      rect(0.5, 0.5, 0.25, 0.5),
+      rect(0.75, 0.5, 0.25, 0.5),
     ],
   },
   {
@@ -153,12 +209,12 @@ const TEMPLATES: Template[] = [
     count: 6,
     label: '竖六',
     cells: [
-      [0, 0, 1 / 6, 1],
-      [1 / 6, 0, 1 / 6, 1],
-      [2 / 6, 0, 1 / 6, 1],
-      [3 / 6, 0, 1 / 6, 1],
-      [4 / 6, 0, 1 / 6, 1],
-      [5 / 6, 0, 1 / 6, 1],
+      rect(0, 0, 1 / 6, 1),
+      rect(1 / 6, 0, 1 / 6, 1),
+      rect(2 / 6, 0, 1 / 6, 1),
+      rect(3 / 6, 0, 1 / 6, 1),
+      rect(4 / 6, 0, 1 / 6, 1),
+      rect(5 / 6, 0, 1 / 6, 1),
     ],
   },
 ]
@@ -230,7 +286,10 @@ const DEFAULT_TRANSFORM: Transform = { scale: 1, ox: 0, oy: 0 }
 const MIN_SCALE = 1
 const MAX_SCALE = 5
 
-interface CellRect {
+// A placed cell: its absolute-pixel polygon plus the axis-aligned bounding box
+// used as the cover target rect and for pan/zoom slack math.
+interface CellGeom {
+  poly: [number, number][]
   x: number
   y: number
   w: number
@@ -238,6 +297,25 @@ interface CellRect {
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
+
+// Ray-casting point-in-polygon test (polygon in absolute px).
+function pointInPoly(px: number, py: number, poly: [number, number][]): boolean {
+  let inside = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i]
+    const [xj, yj] = poly[j]
+    const intersect =
+      yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi
+    if (intersect) inside = !inside
+  }
+  return inside
+}
+
+// Trace a polygon path (does not begin/fill/stroke — caller decides).
+function tracePoly(ctx: CanvasRenderingContext2D, poly: [number, number][]) {
+  poly.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)))
+  ctx.closePath()
+}
 
 // Pure layout+draw. Fills the background unless transparent, then paints every
 // image according to the layout. Returns the canvas pixel dimensions.
@@ -316,19 +394,17 @@ function drawMerged(
   return { width: canvas.width, height: canvas.height }
 }
 
-// Draw an image into a target rect with object-fit: cover — scale to fill,
-// center, and clip the overflow to the rect. A per-image transform (scale ≥ 1
-// on top of cover, offset normalized to [-1,1] of the slack) lets the user
-// pan and zoom within the cell.
+// Draw an image into a cell (a polygon) with object-fit: cover — scale to fill
+// the cell's bounding box, center, and clip the overflow to the polygon. A
+// per-image transform (scale ≥ 1 on top of cover, offset normalized to [-1,1]
+// of the slack) lets the user pan and zoom within the cell.
 function drawCover(
   ctx: CanvasRenderingContext2D,
   im: LoadedImage,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+  geom: CellGeom,
   tf: Transform = DEFAULT_TRANSFORM,
 ) {
+  const { x, y, w, h, poly } = geom
   if (w <= 0 || h <= 0) return
   const base = Math.max(w / im.w, h / im.h)
   const eff = base * tf.scale
@@ -340,24 +416,36 @@ function drawCover(
   const dy = y + (h - dh) / 2 + tf.oy * slackY
   ctx.save()
   ctx.beginPath()
-  ctx.rect(x, y, w, h)
+  tracePoly(ctx, poly)
   ctx.clip()
   ctx.drawImage(im.img, dx, dy, dw, dh)
   ctx.restore()
 }
 
-// Pixel rects of every template cell on the current canvas — shared by the
-// draw pass and pointer hit-testing so they never drift apart.
-function templateCellRects(template: Template, opts: Options): CellRect[] {
+// Absolute-pixel geometry of every template cell on the current canvas —
+// shared by the draw pass and pointer hit-testing so they never drift apart.
+// Cells map into the padded inner square; gap is applied later by stroking
+// the seams (polygons can't be uniformly inset like rects).
+function templateCellGeoms(template: Template, opts: Options): CellGeom[] {
   const size = Math.max(1, Math.round(opts.canvasSize))
-  const { padding, gap } = opts
+  const { padding } = opts
   const inner = size - padding * 2
-  return template.cells.map(([nx, ny, nw, nh]) => ({
-    x: padding + nx * inner + gap / 2,
-    y: padding + ny * inner + gap / 2,
-    w: nw * inner - gap,
-    h: nh * inner - gap,
-  }))
+  return template.cells.map((cell) => {
+    const poly = cell.map(
+      ([nx, ny]) => [padding + nx * inner, padding + ny * inner] as [number, number],
+    )
+    let minX = Infinity
+    let minY = Infinity
+    let maxX = -Infinity
+    let maxY = -Infinity
+    for (const [px, py] of poly) {
+      if (px < minX) minX = px
+      if (px > maxX) maxX = px
+      if (py < minY) minY = py
+      if (py > maxY) maxY = py
+    }
+    return { poly, x: minX, y: minY, w: maxX - minX, h: maxY - minY }
+  })
 }
 
 // Render a collage template onto a square canvas.
@@ -371,6 +459,7 @@ function drawTemplate(
 ): Rendered | null {
   if (images.length === 0) return null
   const size = Math.max(1, Math.round(opts.canvasSize))
+  const { gap } = opts
   const bg = forceBg ?? (opts.transparent ? null : opts.bg)
 
   canvas.width = size
@@ -383,12 +472,33 @@ function drawTemplate(
     ctx.fillRect(0, 0, size, size)
   }
 
-  const rects = templateCellRects(template, opts)
-  rects.forEach((r, i) => {
+  const geoms = templateCellGeoms(template, opts)
+  geoms.forEach((g, i) => {
     const im = images[i]
     if (!im) return
-    drawCover(ctx, im, r.x, r.y, r.w, r.h, transforms[im.id] ?? DEFAULT_TRANSFORM)
+    drawCover(ctx, im, g, transforms[im.id] ?? DEFAULT_TRANSFORM)
   })
+
+  // Gap: stroke each cell's outline to carve a uniform seam. With a background
+  // paint over it in the bg color; when transparent, erase to alpha instead.
+  if (gap > 0) {
+    ctx.save()
+    ctx.lineWidth = gap
+    ctx.lineJoin = 'miter'
+    if (bg) {
+      ctx.strokeStyle = bg
+    } else {
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.strokeStyle = '#000'
+    }
+    geoms.forEach((g, i) => {
+      if (!images[i]) return
+      ctx.beginPath()
+      tracePoly(ctx, g.poly)
+      ctx.stroke()
+    })
+    ctx.restore()
+  }
   return { width: size, height: size }
 }
 
@@ -430,11 +540,18 @@ export default function ImageMergePage() {
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const templatesRef = useRef<HTMLDivElement | null>(null)
   const imagesRef = useRef(images)
   imagesRef.current = images
 
   const set = <K extends keyof Options>(key: K, value: Options[K]) =>
     setOpts((o) => ({ ...o, [key]: value }))
+
+  const scrollTemplates = useCallback((dir: -1 | 1) => {
+    const el = templatesRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: 'smooth' })
+  }, [])
 
   // Revoke every object URL on unmount to avoid leaks.
   useEffect(() => {
@@ -555,12 +672,12 @@ export default function ImageMergePage() {
       const rect = canvas.getBoundingClientRect()
       const px = ((e.clientX - rect.left) / rect.width) * canvas.width
       const py = ((e.clientY - rect.top) / rect.height) * canvas.height
-      const rects = templateCellRects(activeTemplate, opts)
-      for (let i = 0; i < rects.length; i++) {
-        const r = rects[i]
-        if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) {
+      const geoms = templateCellGeoms(activeTemplate, opts)
+      for (let i = 0; i < geoms.length; i++) {
+        const g = geoms[i]
+        if (pointInPoly(px, py, g.poly)) {
           const im = images[i]
-          if (im) return { im, rect: r, canvas }
+          if (im) return { im, geom: g, canvas }
         }
       }
       return null
@@ -568,7 +685,7 @@ export default function ImageMergePage() {
     [activeTemplate, opts, images],
   )
 
-  const dragRef = useRef<{ id: string; startX: number; startY: number; ox: number; oy: number; rect: CellRect; canvasW: number } | null>(null)
+  const dragRef = useRef<{ id: string; startX: number; startY: number; ox: number; oy: number; geom: CellGeom; canvasW: number } | null>(null)
 
   const onCanvasPointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -582,7 +699,7 @@ export default function ImageMergePage() {
         startY: e.clientY,
         ox: tf.ox,
         oy: tf.oy,
-        rect: hit.rect,
+        geom: hit.geom,
         canvasW: hit.canvas.width,
       }
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -600,11 +717,11 @@ export default function ImageMergePage() {
       const im = images.find((i) => i.id === d.id)
       if (!im) return
       const tf = transforms[d.id] ?? DEFAULT_TRANSFORM
-      const base = Math.max(d.rect.w / im.w, d.rect.h / im.h)
+      const base = Math.max(d.geom.w / im.w, d.geom.h / im.h)
       const dw = im.w * base * tf.scale
       const dh = im.h * base * tf.scale
-      const slackX = (dw - d.rect.w) / 2
-      const slackY = (dh - d.rect.h) / 2
+      const slackX = (dw - d.geom.w) / 2
+      const slackY = (dh - d.geom.h) / 2
       const dxCanvas = (e.clientX - d.startX) * cssToCanvas
       const dyCanvas = (e.clientY - d.startY) * cssToCanvas
       const nox = slackX > 0 ? clamp(d.ox + dxCanvas / slackX, -1, 1) : 0
@@ -797,7 +914,16 @@ export default function ImageMergePage() {
               <>
                 <div className="im-field im-field-wide">
                   <span className="im-field-label">模板（按图片数）</span>
-                  <div className="im-templates">
+                  <div className="im-templates-row">
+                    <button
+                      type="button"
+                      className="im-tpl-scroll"
+                      aria-label="向左滚动"
+                      onClick={() => scrollTemplates(-1)}
+                    >
+                      ‹
+                    </button>
+                    <div className="im-templates" ref={templatesRef}>
                     {TEMPLATES.map((t) => {
                       const usable = images.length >= t.count
                       return (
@@ -809,24 +935,32 @@ export default function ImageMergePage() {
                           title={`${t.count} 图 · ${t.label}`}
                           onClick={() => set('templateId', t.id)}
                         >
-                          <span className="im-tpl-figure">
+                          <svg
+                            className="im-tpl-figure"
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="none"
+                          >
                             {t.cells.map((c, i) => (
-                              <span
+                              <polygon
                                 key={i}
                                 className="im-tpl-cell"
-                                style={{
-                                  left: `${c[0] * 100}%`,
-                                  top: `${c[1] * 100}%`,
-                                  width: `${c[2] * 100}%`,
-                                  height: `${c[3] * 100}%`,
-                                }}
+                                points={c.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')}
                               />
                             ))}
-                          </span>
+                          </svg>
                           <span className="im-tpl-label">{t.count}图·{t.label}</span>
                         </button>
                       )
                     })}
+                    </div>
+                    <button
+                      type="button"
+                      className="im-tpl-scroll"
+                      aria-label="向右滚动"
+                      onClick={() => scrollTemplates(1)}
+                    >
+                      ›
+                    </button>
                   </div>
                 </div>
                 <label className="im-field">
